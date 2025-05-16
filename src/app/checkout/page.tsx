@@ -1,3 +1,4 @@
+
 "use client";
 
 import CheckoutForm from '@/components/checkout/CheckoutForm';
@@ -6,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function CheckoutPage() {
   const { cartItems, getCartTotal, getCartItemCount } = useCart();
@@ -20,7 +22,11 @@ export default function CheckoutPage() {
   }, [itemCount, router]);
 
   if (itemCount === 0) {
-    return <div className="container py-12 text-center">Loading or redirecting...</div>;
+    return (
+      <div className="container py-12 flex justify-center items-center min-h-[calc(100vh-200px)] md:min-h-[300px]">
+        <LoadingSpinner size={48} />
+      </div>
+    );
   }
 
   return (

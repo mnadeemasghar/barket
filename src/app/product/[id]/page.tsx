@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, Minus, Plus, ShoppingCart, Star, MapPin } from 'lucide-react';
 import type { Product } from '@/types';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 // Helper function to render stars
 const renderRatingStars = (rating: number) => {
@@ -41,12 +42,18 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (id) {
       const foundProduct = products.find(p => p.id === id);
+      // Simulate a small delay for loading spinner visibility if needed for testing
+      // setTimeout(() => setProduct(foundProduct || null), 500);
       setProduct(foundProduct || null); 
     }
   }, [id]);
 
   if (product === undefined) {
-    return <div className="container py-8 text-center">Loading product details...</div>;
+    return (
+      <div className="container py-12 flex justify-center items-center min-h-[calc(100vh-200px)] md:min-h-[300px]">
+        <LoadingSpinner size={48} />
+      </div>
+    );
   }
 
   if (!product) {

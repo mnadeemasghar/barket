@@ -2,6 +2,7 @@
 "use client";
 
 import Image from 'next/image';
+import Link from 'next/link'; // Import Link
 import type { Product } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
@@ -26,19 +27,25 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Card className="flex flex-col overflow-hidden rounded-lg shadow-lg transition-all hover:shadow-xl">
       <CardHeader className="p-0">
-        <div className="aspect-[4/3] relative w-full overflow-hidden">
-          <Image
-            src={product.imageUrl}
-            alt={product.name}
-            fill
-            className="object-cover"
-            data-ai-hint={product.dataAiHint || 'food product'}
-            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          />
-        </div>
+        <Link href={`/product/${product.id}`} aria-label={`View details for ${product.name}`}>
+          <div className="aspect-[4/3] relative w-full overflow-hidden">
+            <Image
+              src={product.imageUrl}
+              alt={product.name}
+              fill
+              className="object-cover"
+              data-ai-hint={product.dataAiHint || 'food product'}
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            />
+          </div>
+        </Link>
       </CardHeader>
       <CardContent className="p-4 flex-grow">
-        <CardTitle className="text-lg font-semibold mb-1">{product.name}</CardTitle>
+        <CardTitle className="text-lg font-semibold mb-1">
+          <Link href={`/product/${product.id}`} className="hover:underline">
+            {product.name}
+          </Link>
+        </CardTitle>
         <CardDescription className="text-sm text-muted-foreground mb-2 h-10 overflow-hidden">
           {product.description}
         </CardDescription>

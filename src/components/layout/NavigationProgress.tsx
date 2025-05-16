@@ -11,59 +11,78 @@ export default function NavigationProgress() {
   const [isVisible, setIsVisible] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const currentPathRef = useRef(pathname + searchParams.toString());
+  // Ref to store the path that most recently *started* a loading sequence.
+  const activeLoadingPathRef = useRef<string | null>(null);
+
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const completionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const newPath = pathname + searchParams.toString();
+    const currentFullPath = pathname + searchParams.toString();
 
-    // This effect runs after the new page's content has rendered (or on initial load).
-    // If the progress bar is visible and the path is the same as when it started,
-    // it means navigation has completed for the currentPathRef.
-    if (isVisible && currentPathRef.current === newPath) {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      setProgress(100); // Set to 100%
-      // After a short delay, hide the progress bar
-      timeoutRef.current = setTimeout(() => {
-        setIsVisible(false);
-        setProgress(0); // Reset for the next navigation
-      }, 500); // Duration to show 100%
-      return; // Exit early as this is the completion phase
+    // Clear any pending completion timeout if a new navigation starts quickly
+    // This handles cases where user clicks another link before the previous one fully "hides"
+    if (completionTimeoutRef.current) {
+      clearTimeout(completionTimeoutRef.current);
+      completionTimeoutRef.current = null;
     }
 
-    // If the path has actually changed, it signifies a new navigation.
-    if (currentPathRef.current !== newPath) {
-      currentPathRef.current = newPath; // Update ref to the new path
+    // This condition means a new navigation has started
+    if (activeLoadingPathRef.current !== currentFullPath) {
+      // If there's an old progress interval from a previous navigation, clear it
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
 
-      // Clear any existing timers/intervals from previous navigations or completions
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      if (intervalRef.current) clearInterval(intervalRef.current);
-
+      // Start new loading sequence
+      activeLoadingPathRef.current = currentFullPath;
       setIsVisible(true);
-      setProgress(10); // Start with a small initial progress
+      setProgress(15); // Start with a slightly more visible initial progress
 
-      // Simulate progress increment
-      intervalRef.current = setInterval(() => {
+      progressIntervalRef.current = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 95) { // Stall near the end
-            if (intervalRef.current) clearInterval(intervalRef.current);
+            if (progressIntervalRef.current) {
+              clearInterval(progressIntervalRef.current);
+              progressIntervalRef.current = null;
+            }
             return prev;
           }
-          // Increment progress; you can make this more sophisticated
-          const increment = Math.random() * 10;
+          // Simulate progress: random increment between 5 and 20
+          const increment = Math.random() * 15 + 5; 
           return Math.min(prev + increment, 95);
         });
-      }, 250); // Adjust interval for desired speed
+      }, 150); // Update interval (e.g., every 150ms)
+    }
+    // This condition means the useEffect is running for the *same path* that is currently loading,
+    // and the bar is visible. This implies the new page's components have rendered.
+    else if (isVisible && activeLoadingPathRef.current === currentFullPath) {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      setProgress(100); // Complete the progress
+
+      completionTimeoutRef.current = setTimeout(() => {
+        setIsVisible(false);
+        // No need to reset activeLoadingPathRef.current here; it's updated when a *new* path starts.
+        setProgress(0); // Reset progress value for the next navigation
+      }, 300); // Short delay before hiding the fully loaded bar
     }
 
-    // Cleanup function to clear interval and timeout if component unmounts
-    // or if dependencies change before completion.
+    // Cleanup function: clears intervals/timeouts if the component unmounts
+    // or if dependencies change causing the effect to re-run *before* completion.
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      if (completionTimeoutRef.current) {
+        clearTimeout(completionTimeoutRef.current);
+        completionTimeoutRef.current = null;
+      }
     };
-  }, [pathname, searchParams, isVisible]); // `isVisible` helps manage the completion logic correctly
+  }, [pathname, searchParams]); // Effect only depends on path changes
 
   if (!isVisible) {
     return null;

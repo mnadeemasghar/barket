@@ -8,6 +8,14 @@ export default {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: '1rem', // Default padding for mobile and smaller screens
+        sm: '1.5rem',    // Padding for sm screens (640px) and up
+        lg: '2rem',      // Padding for lg screens (1024px) and up
+      },
+    },
   	extend: {
   		colors: {
   			background: 'hsl(var(--background))',

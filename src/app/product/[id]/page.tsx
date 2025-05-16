@@ -17,14 +17,13 @@ import type { Product } from '@/types';
 const renderRatingStars = (rating: number) => {
   const starElements = [];
   for (let i = 0; i < 5; i++) {
-    // Round to nearest half for filling logic
     const roundedRating = Math.round(rating * 2) / 2; 
-    if (i < Math.floor(roundedRating)) { // Full star
+    if (i < Math.floor(roundedRating)) { 
       starElements.push(<Star key={`full-${i}`} className="h-5 w-5 fill-primary text-primary" />);
-    } else if (i < roundedRating) { // Half star (rendered as full for simplicity as before, but logic is here if StarHalf icon is added)
-      starElements.push(<Star key={`half-${i}`} className="h-5 w-5 fill-primary text-primary" />); // Placeholder for half star
+    } else if (i < roundedRating) { 
+      starElements.push(<Star key={`half-${i}`} className="h-5 w-5 fill-primary text-primary" />); 
     }
-     else { // Empty star
+     else { 
       starElements.push(<Star key={`empty-${i}`} className="h-5 w-5 text-muted-foreground" />);
     }
   }
@@ -37,17 +36,16 @@ export default function ProductDetailPage() {
   const { id } = params;
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [product, setProduct] = useState<Product | null | undefined>(undefined); // undefined for loading state
+  const [product, setProduct] = useState<Product | null | undefined>(undefined); 
 
   useEffect(() => {
     if (id) {
       const foundProduct = products.find(p => p.id === id);
-      setProduct(foundProduct || null); // null if not found, Product if found
+      setProduct(foundProduct || null); 
     }
   }, [id]);
 
   if (product === undefined) {
-    // Loading state, you can return a spinner or skeleton here
     return <div className="container py-8 text-center">Loading product details...</div>;
   }
 
@@ -62,7 +60,7 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="container py-8">
+    <div className="container py-6 md:py-8">
       <Button variant="outline" asChild className="mb-6">
         <Link href="/">
           <ChevronLeft className="mr-2 h-4 w-4" />
@@ -85,9 +83,9 @@ export default function ProductDetailPage() {
             </div>
           </CardHeader>
           
-          <div className="flex flex-col justify-between h-full p-6 md:py-6 md:pr-6">
-            <CardContent className="p-0 space-y-4">
-              <CardTitle className="text-3xl lg:text-4xl font-bold">{product.name}</CardTitle>
+          <div className="flex flex-col justify-between h-full p-4 sm:p-6 md:py-6 md:pr-6">
+            <CardContent className="p-0 space-y-3 sm:space-y-4">
+              <CardTitle className="text-2xl sm:text-3xl lg:text-4xl font-bold">{product.name}</CardTitle>
               
               <div className="flex items-center gap-2">
                 <div className="flex items-center">
@@ -96,12 +94,12 @@ export default function ProductDetailPage() {
                 <span className="text-sm text-muted-foreground">({product.rating.toFixed(1)} rating based on user reviews)</span>
               </div>
 
-              <CardDescription className="text-base text-muted-foreground leading-relaxed pt-2">
+              <CardDescription className="text-sm sm:text-base text-muted-foreground leading-relaxed pt-2">
                 {product.description}
               </CardDescription>
               
               <div className="flex items-baseline gap-2 pt-2">
-                <p className="text-3xl font-bold text-primary">${product.price.toFixed(2)}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-primary">${product.price.toFixed(2)}</p>
                 <span className="text-sm text-muted-foreground">/ {product.uom}</span>
               </div>
 
@@ -129,7 +127,7 @@ export default function ProductDetailPage() {
                       const val = parseInt(e.target.value, 10);
                       setQuantity(val > 0 ? val : 1);
                     }}
-                    className="w-16 h-9 text-center rounded-md"
+                    className="w-14 sm:w-16 h-9 text-center rounded-md"
                     min="1"
                     aria-label="Product quantity"
                   />
@@ -160,12 +158,6 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </Card>
-
-      {/* Future placeholder for Related Products or Reviews */}
-      {/* <div className="mt-12">
-        <h2 className="text-2xl font-bold mb-6">You Might Also Like</h2>
-        ...
-      </div> */}
     </div>
   );
 }

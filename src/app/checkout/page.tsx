@@ -2,7 +2,7 @@
 
 import CheckoutForm from '@/components/checkout/CheckoutForm';
 import { useCart } from '@/context/CartContext';
-import { useRouter } from 'next/navigation'; // Corrected import for App Router
+import { useRouter } from 'next/navigation'; 
 import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
@@ -15,19 +15,18 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (itemCount === 0) {
-      router.replace('/cart'); // Use replace to avoid back button to empty checkout
+      router.replace('/cart'); 
     }
   }, [itemCount, router]);
 
   if (itemCount === 0) {
-    // This will be briefly shown before redirect, or if redirect fails.
     return <div className="container py-12 text-center">Loading or redirecting...</div>;
   }
 
   return (
-    <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Checkout</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+    <div className="container py-6 md:py-8">
+      <h1 className="text-3xl font-bold mb-6 md:mb-8 text-center">Checkout</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
         <div>
           <CheckoutForm />
         </div>
@@ -45,7 +44,7 @@ export default function CheckoutPage() {
                       alt={item.name} 
                       width={40} 
                       height={40} 
-                      className="rounded"
+                      className="rounded w-8 h-8 md:w-10 md:h-10 object-cover" // Adjusted size
                       data-ai-hint={item.dataAiHint || 'product image'}
                     />
                     <div>

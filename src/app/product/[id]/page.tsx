@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
@@ -15,17 +15,16 @@ import type { Product } from '@/types';
 
 // Helper function to render stars
 const renderRatingStars = (rating: number) => {
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 >= 0.5; // Simplified: show full star for .5 or more
   const starElements = [];
   for (let i = 0; i < 5; i++) {
-    if (i < fullStars) {
+    // Round to nearest half for filling logic
+    const roundedRating = Math.round(rating * 2) / 2; 
+    if (i < Math.floor(roundedRating)) { // Full star
       starElements.push(<Star key={`full-${i}`} className="h-5 w-5 fill-primary text-primary" />);
-    } else if (i === fullStars && halfStar) {
-      // For simplicity, we'll use a full star for half-star representation for now
-      // Or you could use StarHalf icon if you prefer and handle its logic
-      starElements.push(<Star key={`half-${i}`} className="h-5 w-5 fill-primary text-primary" />);
-    } else {
+    } else if (i < roundedRating) { // Half star (rendered as full for simplicity as before, but logic is here if StarHalf icon is added)
+      starElements.push(<Star key={`half-${i}`} className="h-5 w-5 fill-primary text-primary" />); // Placeholder for half star
+    }
+     else { // Empty star
       starElements.push(<Star key={`empty-${i}`} className="h-5 w-5 text-muted-foreground" />);
     }
   }
@@ -38,8 +37,19 @@ export default function ProductDetailPage() {
   const { id } = params;
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [product, setProduct] = useState<Product | null | undefined>(undefined); // undefined for loading state
 
-  const product = products.find(p => p.id === id);
+  useEffect(() => {
+    if (id) {
+      const foundProduct = products.find(p => p.id === id);
+      setProduct(foundProduct || null); // null if not found, Product if found
+    }
+  }, [id]);
+
+  if (product === undefined) {
+    // Loading state, you can return a spinner or skeleton here
+    return <div className="container py-8 text-center">Loading product details...</div>;
+  }
 
   if (!product) {
     notFound();
@@ -60,7 +70,7 @@ export default function ProductDetailPage() {
         </Link>
       </Button>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden shadow-xl rounded-lg">
         <div className="grid md:grid-cols-2 gap-6 lg:gap-12 items-start">
           <CardHeader className="p-0 md:p-6">
             <div className="aspect-square relative w-full overflow-hidden rounded-t-lg md:rounded-lg shadow-md">
@@ -75,33 +85,33 @@ export default function ProductDetailPage() {
             </div>
           </CardHeader>
           
-          <div className="flex flex-col justify-between h-full p-6 md:p-0 md:pt-6">
+          <div className="flex flex-col justify-between h-full p-6 md:py-6 md:pr-6">
             <CardContent className="p-0 space-y-4">
-              <CardTitle className="text-3xl font-bold">{product.name}</CardTitle>
+              <CardTitle className="text-3xl lg:text-4xl font-bold">{product.name}</CardTitle>
               
               <div className="flex items-center gap-2">
                 <div className="flex items-center">
                   {renderRatingStars(product.rating)}
                 </div>
-                <span className="text-sm text-muted-foreground">({product.rating.toFixed(1)} rating)</span>
+                <span className="text-sm text-muted-foreground">({product.rating.toFixed(1)} rating based on user reviews)</span>
               </div>
 
-              <CardDescription className="text-base text-muted-foreground leading-relaxed">
+              <CardDescription className="text-base text-muted-foreground leading-relaxed pt-2">
                 {product.description}
               </CardDescription>
               
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-baseline gap-2 pt-2">
                 <p className="text-3xl font-bold text-primary">${product.price.toFixed(2)}</p>
-                <span className="text-sm text-muted-foreground">{product.uom}</span>
+                <span className="text-sm text-muted-foreground">/ {product.uom}</span>
               </div>
 
-              <div className="text-sm text-muted-foreground flex items-center">
-                <MapPin className="h-4 w-4 mr-1.5" />
+              <div className="text-sm text-muted-foreground flex items-center pt-1">
+                <MapPin className="h-4 w-4 mr-1.5 flex-shrink-0" />
                 Sourced from: {product.sourceCity}, {product.sourceCountry}
               </div>
               
-              <div className="flex items-center gap-3 pt-2">
-                <span className="text-sm font-medium text-muted-foreground">Quantity:</span>
+              <div className="flex items-center gap-3 pt-4">
+                <span className="text-sm font-medium">Quantity:</span>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
@@ -136,11 +146,11 @@ export default function ProductDetailPage() {
               </div>
             </CardContent>
 
-            <CardFooter className="p-0 pt-6 md:pb-6">
+            <CardFooter className="p-0 pt-6 md:pt-8">
               <Button 
                 variant="default" 
                 size="lg" 
-                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground rounded-md" 
+                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground rounded-md py-6 text-base" 
                 onClick={handleAddToCart}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />

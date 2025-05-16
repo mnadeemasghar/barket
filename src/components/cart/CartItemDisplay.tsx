@@ -33,7 +33,14 @@ export default function CartItemDisplay({ item }: CartItemDisplayProps) {
         <p className="text-sm text-muted-foreground">${item.price.toFixed(2)}</p>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="icon" onClick={() => handleQuantityChange(item.quantity - 1)} disabled={item.quantity <= 1}>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="h-9 w-9 shrink-0" 
+          onClick={() => handleQuantityChange(item.quantity - 1)} 
+          disabled={item.quantity <= 1}
+          aria-label="Decrease quantity"
+        >
           <Minus className="h-4 w-4" />
         </Button>
         <Input
@@ -42,13 +49,26 @@ export default function CartItemDisplay({ item }: CartItemDisplayProps) {
           onChange={(e) => handleQuantityChange(parseInt(e.target.value, 10) || 1)}
           className="w-16 text-center h-9"
           min="1"
+          aria-label="Item quantity"
         />
-        <Button variant="outline" size="icon" onClick={() => handleQuantityChange(item.quantity + 1)}>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="h-9 w-9 shrink-0" 
+          onClick={() => handleQuantityChange(item.quantity + 1)}
+          aria-label="Increase quantity"
+        >
           <Plus className="h-4 w-4" />
         </Button>
       </div>
       <p className="font-semibold w-20 text-right">${(item.price * item.quantity).toFixed(2)}</p>
-      <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)} className="text-destructive hover:text-destructive/80">
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={() => removeFromCart(item.id)} 
+        className="text-destructive hover:text-destructive/80"
+        aria-label="Remove item"
+      >
         <Trash2 className="h-5 w-5" />
       </Button>
     </div>

@@ -15,13 +15,16 @@ interface ProductCardProps {
   product: Product;
 }
 
-// Helper function to render stars
+// Helper function to render stars, consistent with product detail page
 const renderRatingStars = (rating: number) => {
   const fullStars = Math.floor(rating);
+  const halfStar = rating % 1 >= 0.5; // Show full star for .5 or more
   const starElements = [];
   for (let i = 0; i < 5; i++) {
     if (i < fullStars) {
       starElements.push(<Star key={`full-${i}`} className="h-4 w-4 fill-primary text-primary" />);
+    } else if (i === fullStars && halfStar) {
+      starElements.push(<Star key={`half-${i}`} className="h-4 w-4 fill-primary text-primary" />);
     } else {
       starElements.push(<Star key={`empty-${i}`} className="h-4 w-4 text-muted-foreground" />);
     }
@@ -54,29 +57,33 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         </Link>
       </CardHeader>
-      <CardContent className="p-4 flex-grow">
-        <CardTitle className="text-lg font-semibold mb-1">
+      <CardContent className="p-4 flex-grow space-y-2">
+        <CardTitle className="text-lg font-semibold">
           <Link href={`/product/${product.id}`} className="hover:underline">
             {product.name}
           </Link>
         </CardTitle>
-        <div className="flex items-center gap-1 mb-1">
+        
+        <div className="flex items-center gap-1">
           {renderRatingStars(product.rating)}
           <span className="text-xs text-muted-foreground">({product.rating.toFixed(1)})</span>
         </div>
-        <CardDescription className="text-sm text-muted-foreground mb-2 h-12 overflow-hidden text-ellipsis">
+        
+        <CardDescription className="text-sm text-muted-foreground h-12 overflow-hidden text-ellipsis">
           {product.description}
         </CardDescription>
-        <div className="flex items-baseline gap-1 mb-2">
+        
+        <div className="flex items-baseline gap-1">
           <p className="text-lg font-bold text-primary">${product.price.toFixed(2)}</p>
           <span className="text-xs text-muted-foreground">/ {product.uom}</span>
         </div>
-        <div className="text-xs text-muted-foreground flex items-center mb-3">
-          <MapPin className="h-3 w-3 mr-1" />
-          {product.sourceCity}, {product.sourceCountry}
+
+        <div className="text-xs text-muted-foreground flex items-center">
+          <MapPin className="h-3 w-3 mr-1.5 flex-shrink-0" />
+          <span>{product.sourceCity}, {product.sourceCountry}</span>
         </div>
         
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 pt-1">
           <span className="text-sm text-muted-foreground mr-1">Qty:</span>
           <Button
             variant="outline"
@@ -118,4 +125,3 @@ export default function ProductCard({ product }: ProductCardProps) {
     </Card>
   );
 }
-

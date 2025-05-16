@@ -7,13 +7,27 @@ import type { Product } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, Minus, Plus } from 'lucide-react';
+import { PlusCircle, Minus, Plus, Star, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 
 interface ProductCardProps {
   product: Product;
 }
+
+// Helper function to render stars
+const renderRatingStars = (rating: number) => {
+  const fullStars = Math.floor(rating);
+  const starElements = [];
+  for (let i = 0; i < 5; i++) {
+    if (i < fullStars) {
+      starElements.push(<Star key={`full-${i}`} className="h-4 w-4 fill-primary text-primary" />);
+    } else {
+      starElements.push(<Star key={`empty-${i}`} className="h-4 w-4 text-muted-foreground" />);
+    }
+  }
+  return starElements;
+};
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
@@ -46,21 +60,32 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </Link>
         </CardTitle>
-        <CardDescription className="text-sm text-muted-foreground mb-2 h-10 overflow-hidden">
+        <div className="flex items-center gap-1 mb-1">
+          {renderRatingStars(product.rating)}
+          <span className="text-xs text-muted-foreground">({product.rating.toFixed(1)})</span>
+        </div>
+        <CardDescription className="text-sm text-muted-foreground mb-2 h-12 overflow-hidden text-ellipsis">
           {product.description}
         </CardDescription>
-        <p className="text-lg font-bold text-primary mb-3">${product.price.toFixed(2)}</p>
+        <div className="flex items-baseline gap-1 mb-2">
+          <p className="text-lg font-bold text-primary">${product.price.toFixed(2)}</p>
+          <span className="text-xs text-muted-foreground">/ {product.uom}</span>
+        </div>
+        <div className="text-xs text-muted-foreground flex items-center mb-3">
+          <MapPin className="h-3 w-3 mr-1" />
+          {product.sourceCity}, {product.sourceCountry}
+        </div>
         
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-sm text-muted-foreground mr-2">Quantity:</span>
+          <span className="text-sm text-muted-foreground mr-1">Qty:</span>
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 shrink-0"
+            className="h-8 w-8 shrink-0 rounded-full"
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             aria-label="Decrease quantity"
           >
-            <Minus className="h-4 w-4" />
+            <Minus className="h-3 w-3" />
           </Button>
           <Input
             type="number"
@@ -69,18 +94,18 @@ export default function ProductCard({ product }: ProductCardProps) {
               const val = parseInt(e.target.value, 10);
               setQuantity(val > 0 ? val : 1);
             }}
-            className="w-14 h-8 text-center"
+            className="w-12 h-8 text-center rounded-md"
             min="1"
             aria-label="Product quantity"
           />
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 shrink-0"
+            className="h-8 w-8 shrink-0 rounded-full"
             onClick={() => setQuantity(quantity + 1)}
             aria-label="Increase quantity"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-3 w-3" />
           </Button>
         </div>
       </CardContent>
@@ -93,3 +118,4 @@ export default function ProductCard({ product }: ProductCardProps) {
     </Card>
   );
 }
+

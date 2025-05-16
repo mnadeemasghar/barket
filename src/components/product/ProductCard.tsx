@@ -17,15 +17,15 @@ interface ProductCardProps {
 
 // Helper function to render stars, consistent with product detail page
 const renderRatingStars = (rating: number) => {
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 >= 0.5; // Show full star for .5 or more
   const starElements = [];
   for (let i = 0; i < 5; i++) {
-    if (i < fullStars) {
+    const roundedRating = Math.round(rating * 2) / 2; 
+    if (i < Math.floor(roundedRating)) { 
       starElements.push(<Star key={`full-${i}`} className="h-4 w-4 fill-primary text-primary" />);
-    } else if (i === fullStars && halfStar) {
-      starElements.push(<Star key={`half-${i}`} className="h-4 w-4 fill-primary text-primary" />);
-    } else {
+    } else if (i < roundedRating) { 
+      starElements.push(<Star key={`half-${i}`} className="h-4 w-4 fill-primary text-primary" />); 
+    }
+     else { 
       starElements.push(<Star key={`empty-${i}`} className="h-4 w-4 text-muted-foreground" />);
     }
   }
@@ -69,7 +69,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <span className="text-xs text-muted-foreground">({product.rating.toFixed(1)})</span>
         </div>
         
-        <CardDescription className="text-sm text-muted-foreground h-12 overflow-hidden text-ellipsis">
+        <CardDescription className="text-sm text-muted-foreground line-clamp-2">
           {product.description}
         </CardDescription>
         
